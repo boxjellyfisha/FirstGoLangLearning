@@ -2,7 +2,6 @@ package hello
 
 import (
 	"kzapp/webapi/pkg"
-	"kzapp/webapi/user"
 
 	"encoding/json"
 	"net/http"
@@ -46,7 +45,7 @@ func TestGreet(t *testing.T) { runTest(func(target GreetingHandler) {
 					t.Errorf("handler returned wrong status code: got %v want %v", status, tt.expectedStatus)
 				}
 
-				var response user.UserResponse
+				var response GreetingResponse
 				if err := json.NewDecoder(rr.Body).Decode(&response); err != nil {
 					t.Errorf("無法解析響應 JSON: %v", err)
 				}

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"kzapp/webapi/pkg"
-	"kzapp/webapi/user"
 	"net/http"
 )
 
@@ -24,7 +23,7 @@ func (h GreetingHandler) greet(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("userName: %s\n", userName)
 	greeting := "Welcome Back!"
 
-	response := user.UserResponse{
+	response := GreetingResponse{
 		Name:    userName,
 		Message: &greeting,
 	}
