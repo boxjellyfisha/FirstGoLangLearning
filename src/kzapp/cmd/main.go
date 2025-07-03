@@ -1,11 +1,11 @@
 package main
 
 import (
-	"kzapp/exercise"
-	// "kzapp/webapi"
+	// "kzapp/exercise"
+	"kzapp/webapi"
 )
 
 func main() {
-	// webapi.Server()
-	exercise.RunLeetCode()
+	webapi.RunServer()
+	// exercise.RunLeetCode()
 }
