@@ -9,8 +9,15 @@ import (
 	"strings"
 )
 
+type Calculator struct {}
+
+func (c Calculator) InitService(router *mux.Router) {
+	router.HandleFunc("/square/{num}", pkg.Chain(c.square, pkg.Method("GET"), pkg.Logging()))
+	router.HandleFunc("/add", pkg.Chain(c.add, pkg.Method("POST"), pkg.Logging()))
+}
+
 // example: curl -XPOST http://localhost:80/add -d '{"a": 3, "b": 5}'
-func add(w http.ResponseWriter, r *http.Request) {
+func (c Calculator) add(w http.ResponseWriter, r *http.Request) {
 
 	//decode the body and create response
 	var req Plusable
@@ -25,7 +32,7 @@ func add(w http.ResponseWriter, r *http.Request) {
 }
 
 // example: curl http://localhost:80/square/9
-func square(w http.ResponseWriter, r *http.Request) {
+func (c Calculator) square(w http.ResponseWriter, r *http.Request) {
 	paths := strings.Split(r.URL.Path, "/")
 	lastIndex := len(paths) - 1
 	lastPath := paths[lastIndex]
@@ -40,9 +47,4 @@ func square(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pkg.JsonResponse(w, response)
-}
-
-func InitCaculator(router *mux.Router) {
-	router.HandleFunc("/square/{num}", pkg.Chain(square, pkg.Method("GET"), pkg.Logging()))
-	router.HandleFunc("/add", pkg.Chain(add, pkg.Method("POST"), pkg.Logging()))
 }

@@ -8,14 +8,18 @@ import (
 	"net/http"
 )
 
-func sayhello() func(w http.ResponseWriter, r *http.Request) {
-	handleFun := func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello, you've requested: %s\n", r.URL.Path)
-	}
-	return handleFun
+type GreetingHandler struct {}
+
+func (h GreetingHandler) InitService(router *mux.Router) {
+	router.HandleFunc("/", pkg.Chain(h.sayhello, pkg.Method("GET"), pkg.Logging()))
+	router.HandleFunc("/greet", pkg.Chain(h.greet, pkg.Method("GET"), pkg.Logging()))
 }
 
-func greet(w http.ResponseWriter, r *http.Request) {
+func (h GreetingHandler) sayhello(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hello, you've requested: %s\n", r.URL.Path)
+}
+
+func (h GreetingHandler) greet(w http.ResponseWriter, r *http.Request) {
 	userName := r.URL.Query().Get("name")
 	fmt.Printf("userName: %s\n", userName)
 	greeting := "Welcome Back!"
@@ -26,9 +30,4 @@ func greet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pkg.JsonResponse(w, response)
-}
-
-func InitGreeting(router *mux.Router) {
-	router.HandleFunc("/", pkg.Chain(sayhello(), pkg.Method("GET"), pkg.Logging()))
-	router.HandleFunc("/greet", pkg.Chain(greet, pkg.Method("GET"), pkg.Logging()))
 }

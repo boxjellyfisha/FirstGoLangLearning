@@ -9,8 +9,13 @@ import (
 	"testing"
 )
 
+func runTest(task func(target Calculator)) {
+	target := Calculator{}
+	task(target)
+}
+
 // 測試 add 函數
-func TestAdd(t *testing.T) {
+func TestAdd(t *testing.T) { runTest(func(target Calculator) {
 	tests := []struct {
 		name           string
 		requestBody    Plusable
@@ -41,7 +46,7 @@ func TestAdd(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			jsonBody, _ := json.Marshal(tt.requestBody)
 			req := pkg.CreateTestRequest("POST", "/add", string(jsonBody))
-			rr := pkg.ExecuteRequest(add, req)
+			rr := pkg.ExecuteRequest(target.add, req)
 
 			if status := rr.Code; status != tt.expectedStatus {
 				t.Errorf("handler returned wrong status code: got %v want %v", status, tt.expectedStatus)
@@ -57,20 +62,20 @@ func TestAdd(t *testing.T) {
 			}
 		})
 	}
-}
+})}
 
 // 測試 add 函數的錯誤情況
-func TestAddInvalidJSON(t *testing.T) {
+func TestAddInvalidJSON(t *testing.T) { runTest(func(target Calculator) {
 	req := pkg.CreateTestRequest("POST", "/add", `{"invalid": "json"`)
-	rr := pkg.ExecuteRequest(add, req)
+	rr := pkg.ExecuteRequest(target.add, req)
 
 	if status := rr.Code; status != http.StatusBadRequest {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
 	}
-}
+})}
 
 // 測試 square 函數
-func TestSquare(t *testing.T) {
+func TestSquare(t *testing.T) { runTest(func(target Calculator) {
 	tests := []struct {
 		name           string
 		path           string
@@ -100,7 +105,7 @@ func TestSquare(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			req := pkg.CreateTestRequest("GET", tt.path, "")
-			rr := pkg.ExecuteRequest(square, req)
+			rr := pkg.ExecuteRequest(target.square, req)
 
 			if status := rr.Code; status != tt.expectedStatus {
 				t.Errorf("handler returned wrong status code: got %v want %v", status, tt.expectedStatus)
@@ -116,35 +121,35 @@ func TestSquare(t *testing.T) {
 			}
 		})
 	}
-}
+})}
 
 // 測試 square 函數的錯誤情況
-func TestSquareInvalidNumber(t *testing.T) {
+func TestSquareInvalidNumber(t *testing.T) { runTest(func(target Calculator) {
 	req := pkg.CreateTestRequest("GET", "/square/abc", "")
-	rr := pkg.ExecuteRequest(square, req)
+	rr := pkg.ExecuteRequest(target.square, req)
 
 	if status := rr.Code; status != http.StatusBadRequest {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
 	}
-}
+})}
 
-func BenchmarkAdd(b *testing.B) {
+func BenchmarkAdd(b *testing.B) { runTest(func(target Calculator) {
 	jsonBody, _ := json.Marshal(Plusable{Num1: 3, Num2: 5})
 	req := pkg.CreateTestRequest("POST", "/add", string(jsonBody))
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		rr := httptest.NewRecorder()
-		add(rr, req)
+		target.add(rr, req)
 	}
-}
+})}
 
-func BenchmarkSquare(b *testing.B) {
+func BenchmarkSquare(b *testing.B) { runTest(func(target Calculator) {
 	req := pkg.CreateTestRequest("GET", "/square/9", "")
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		rr := httptest.NewRecorder()
-		square(rr, req)
+		target.square(rr, req)
 	}
-}
+})}

@@ -10,8 +10,13 @@ import (
 	"testing"
 )
 
-// 測試 login 函數
-func TestLogin(t *testing.T) {
+func runTest(task func(target UserHandler)) {
+	target := CreateUserHandler([]byte("super-secret-key"))
+	task(target)
+}
+
+// 測試 target.login 函數
+func TestLogin(t *testing.T) { runTest(func(target UserHandler) {
 	tests := []struct {
 		name           string
 		requestBody    UserResponse
@@ -19,13 +24,13 @@ func TestLogin(t *testing.T) {
 		shouldSucceed  bool
 	}{
 		{
-			name:           "正常登入",
+			name:           "Given a valid request body, when the login function is called, then the response status code should be 200",
 			requestBody:    UserResponse{Name: "testuser"},
 			expectedStatus: http.StatusOK,
 			shouldSucceed:  true,
 		},
 		{
-			name:           "空名稱",
+			name:           "Given an invalid request body, when the login function is called, then the response status code should be 400",
 			requestBody:    UserResponse{Name: ""},
 			expectedStatus: http.StatusBadRequest,
 			shouldSucceed:  false,
@@ -36,7 +41,7 @@ func TestLogin(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			jsonBody, _ := json.Marshal(tt.requestBody)
 			req := pkg.CreateTestRequest("POST", "/login", string(jsonBody))
-			rr := pkg.ExecuteRequest(login, req)
+			rr := pkg.ExecuteRequest(target.login, req)
 
 			if status := rr.Code; status != tt.expectedStatus {
 				t.Errorf("handler returned wrong status code: got %v want %v", status, tt.expectedStatus)
@@ -62,24 +67,24 @@ func TestLogin(t *testing.T) {
 				}
 			}
 
-			doLoggingout()
+			doLoggingout(target)
 		})
 	}
-}
+})}
 
 // 測試 login 函數的錯誤情況
-func TestLoginInvalidJSON(t *testing.T) {
+func TestLoginInvalidJSON(t *testing.T) { runTest(func(target UserHandler) {
 	req := pkg.CreateTestRequest("POST", "/login", `{"invalid": "json"`)
-	rr := pkg.ExecuteRequest(login, req)
+	rr := pkg.ExecuteRequest(target.login, req)
 
 	if status := rr.Code; status != http.StatusBadRequest {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
 	}
-}
+})}
 
 // 測試 logout 函數
-func TestLogout(t *testing.T) {
-	rr := doLoggingout()
+func TestLogout(t *testing.T) { runTest(func(target UserHandler) {
+	rr := doLoggingout(target)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
@@ -89,29 +94,29 @@ func TestLogout(t *testing.T) {
 	if cookies := rr.Result().Cookies(); len(cookies) == 0 {
 		t.Errorf("沒有設置 session cookie")
 	}
-}
+})}
 
-func doLoggingout() *httptest.ResponseRecorder {
+func doLoggingout(target UserHandler) *httptest.ResponseRecorder {
 	req := pkg.CreateTestRequest("POST", "/logout", "")
-	rr := pkg.ExecuteRequest(logout, req)
+	rr := pkg.ExecuteRequest(target.logout, req)
 	return rr
 }
 
 // 測試 userSecretData 函數 - 未認證情況
-func TestUserSecretDataUnauthenticated(t *testing.T) {
+func TestUserSecretDataUnauthenticated(t *testing.T) { runTest(func(target UserHandler) {
 	req := pkg.CreateTestRequest("GET", "/info", "")
-	rr := pkg.ExecuteRequest(userSecretData, req)
+	rr := pkg.ExecuteRequest(target.userSecretData, req)
 
 	if status := rr.Code; status != http.StatusForbidden {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusForbidden)
 	}
-}
+})}
 
 // 測試 userSecretData 函數 - 認證情況
-func TestUserSecretDataAuthenticated(t *testing.T) {
+func TestUserSecretDataAuthenticated(t *testing.T) { runTest(func(target UserHandler) {
 	// 先登入
 	loginReq := pkg.CreateTestRequest("POST", "/login", `{"name":"testuser"}`)
-	loginRR := pkg.ExecuteRequest(login, loginReq)
+	loginRR := pkg.ExecuteRequest(target.login, loginReq)
 
 	// 創建帶有 session cookie 的請求
 	req := pkg.CreateTestRequest("GET", "/info", "")
@@ -119,7 +124,7 @@ func TestUserSecretDataAuthenticated(t *testing.T) {
 		req.AddCookie(cookie)
 	}
 
-	rr := pkg.ExecuteRequest(userSecretData, req)
+	rr := pkg.ExecuteRequest(target.userSecretData, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
@@ -130,5 +135,5 @@ func TestUserSecretDataAuthenticated(t *testing.T) {
 		t.Errorf("響應中沒有包含預期的秘密訊息")
 	}
 
-	doLoggingout()
-}
+	doLoggingout(target)
+})}
