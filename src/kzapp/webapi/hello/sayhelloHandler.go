@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath" // For safe path joining
+	"strings"
 
 	"github.com/gorilla/mux"
 
@@ -21,6 +22,11 @@ type GreetingHandler struct{}
 func (h GreetingHandler) InitService(router *mux.Router) {
 	router.HandleFunc("/", pkg.Chain(h.sayhello, pkg.Method("GET"), pkg.Logging()))
 	router.HandleFunc("/greet", pkg.Chain(h.greet, pkg.Method("GET"), pkg.Logging()))
+	router.HandleFunc("/img/{image}", pkg.Chain(h.giveMeCorgi, pkg.Method("GET"), pkg.Logging()))
+
+	// todo static file server
+	// router.PathPrefix("/imgs/").Handler(h.giveMeImages())
+	// router.HandleFunc("/imgs/", pkg.Chain(h.giveMeImages().ServeHTTP, pkg.Method("GET"), pkg.Logging()))
 }
 
 func (h GreetingHandler) greet(w http.ResponseWriter, r *http.Request) {
@@ -36,8 +42,79 @@ func (h GreetingHandler) greet(w http.ResponseWriter, r *http.Request) {
 	pkg.JsonResponse(w, response)
 }
 
-func (h GreetingHandler) sayhello(w http.ResponseWriter, r *http.Request) {
+// todo static file server
+func (h GreetingHandler) giveMeImages() http.Handler {
+	// 設定靜態檔案目錄
+	imageDir := "webapi/images"
 
+	// 使用 FileServer 提供靜態檔案服務
+	return http.StripPrefix("/imgs/", http.FileServer(http.Dir(imageDir)))
+}
+
+// example: http://localhost:80/img/corgi_laugh.jpg
+func (h GreetingHandler) giveMeCorgi(w http.ResponseWriter, r *http.Request) {
+	// 使用 FileServer 來提供靜態檔案服務
+	// 適用於：
+	// 1. 提供靜態資源（圖片、CSS、JS、HTML 檔案等）
+	// 2. 簡單的檔案瀏覽功能
+	// 3. 開發環境中的檔案伺服器
+	// 4. 不需要複雜路由邏輯的檔案服務
+
+	// 設定圖片目錄路徑
+	imageDir := "webapi/images/"
+	supportedFormats := map[string]string{
+		".jpg":  "image/jpeg",
+		".jpeg": "image/jpeg",
+		".png":  "image/png",
+		".gif":  "image/gif",
+		".webp": "image/webp",
+		".svg":  "image/svg+xml",
+	}
+
+	// 從 URL 路徑中提取圖片檔名
+	vars := mux.Vars(r)
+	imageName := vars["image"]
+
+	// 驗證檔名安全性（防止路徑遍歷攻擊）
+	if imageName == "" || containsDotDot(imageName) {
+		http.Error(w, "Invalid image name", http.StatusBadRequest)
+		return
+	}
+
+	// 構建完整的檔案路徑
+	imagePath := filepath.Join(imageDir, imageName)
+
+	// 檢查檔案是否存在
+	if _, err := os.Stat(imagePath); os.IsNotExist(err) {
+		http.Error(w, "Image not found", http.StatusNotFound)
+		return
+	}
+
+	// 檢查檔案副檔名是否支援
+	ext := filepath.Ext(imageName)
+	contentType, supported := supportedFormats[ext]
+	if !supported {
+		http.Error(w, "Unsupported image format", http.StatusBadRequest)
+		return
+	}
+
+	// 設定適當的 HTTP 標頭
+	w.Header().Set("Content-Type", contentType)
+	w.Header().Set("Cache-Control", "public, max-age=31536000") // 快取一年
+	w.Header().Set("Access-Control-Allow-Origin", "*")          // 允許跨域存取
+
+	// 提供圖片檔案
+	http.ServeFile(w, r, imagePath)
+
+	log.Printf("Served image: %s", imageName)
+}
+
+// containsDotDot 檢查路徑是否包含 ".." 以防止路徑遍歷攻擊
+func containsDotDot(path string) bool {
+	return strings.Contains(path, "..")
+}
+
+func (h GreetingHandler) sayhello(w http.ResponseWriter, r *http.Request) {
 	mdFilepath := "./../webapi/hello/README.md"
 
 	// Read the Markdown file content

@@ -3,8 +3,8 @@ package webapi
 import (
 	"github.com/gorilla/mux"
 
-	"kzapp/webapi/count"
 	"kzapp/webapi/hello"
+	"kzapp/webapi/count"
 	"kzapp/webapi/user"
 )
 
