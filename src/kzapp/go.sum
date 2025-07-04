@@ -1,3 +1,5 @@
+github.com/gomarkdown/markdown v0.0.0-20250311123330-531bef5e742b h1:EY/KpStFl60qA17CptGXhwfZ+k1sFNJIUNR8DdbcuUk=
+github.com/gomarkdown/markdown v0.0.0-20250311123330-531bef5e742b/go.mod h1:JDGcbDT52eL4fju3sZ4TeHGsQwhG9nbDV21aMyhwPoA=
 github.com/google/gofuzz v1.2.0 h1:xRy4A+RhZaiKjJ1bPfwQ8sedCA+YS2YcCHW6ec7JMi0=
 github.com/google/gofuzz v1.2.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/M65Eg=
 github.com/gorilla/mux v1.8.1 h1:TuBL49tXwgrFYWhqrNgrUNEY92u81SPhu7sTdzQEiWY=

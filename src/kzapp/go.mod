@@ -7,4 +7,7 @@ require (
 	github.com/gorilla/sessions v1.4.0
 )
 
-require github.com/gorilla/securecookie v1.1.2 // indirect
+require (
+	github.com/gomarkdown/markdown v0.0.0-20250311123330-531bef5e742b // indirect
+	github.com/gorilla/securecookie v1.1.2 // indirect
+)
