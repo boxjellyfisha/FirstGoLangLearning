@@ -3,8 +3,9 @@ package webapi
 import (
 	"github.com/gorilla/mux"
 
-	"kzapp/webapi/hello"
 	"kzapp/webapi/count"
+	"kzapp/webapi/db"
+	"kzapp/webapi/hello"
 	"kzapp/webapi/user"
 )
 
@@ -18,6 +19,10 @@ func CreateHandler() []Handler {
 		count.Calculator{},
 		user.CreateUserHandler([]byte("super-secret-key")),
 	}
+}
+
+func ProvideUserDao() db.UserDao {
+	return db.NewFirstDB("test.db").UserDao
 }
 
 
