@@ -23,8 +23,7 @@ func TestLotteryFunction(t *testing.T) {
 	for _, gift := range gifts {
 		if gift == nil {
 			t.Error("Expected non-nil gift, got nil")
-		}
-		if gift.ID < 1 || gift.ID > 3 {
+		} else if gift.ID < 1 || gift.ID > 3 {
 			t.Errorf("Invalid gift ID: %d", gift.ID)
 		}
 	}

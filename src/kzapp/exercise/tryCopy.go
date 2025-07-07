@@ -38,6 +38,13 @@ func CreateCopies() (Corgi, Corgi, Corgi, Corgi) {
 		Name:     "Lulu",
 		Trainner: []string{"Lisa", "Jorge"},
 	}
+	
+	// pointerNewOne := new(Corgi)
+	// pointerNewOne.ID = 2
+	// pointerNewOne.Type = Yamper
+	// pointerNewOne.Name = "Lulu"
+	// pointerNewOne.Trainner = []string{"Lisa", "Jorge"}
+	//equal to &newOne
 
 	shallowCopy := newOne
 
