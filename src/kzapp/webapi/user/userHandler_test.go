@@ -1,8 +1,9 @@
 package user
 
 import (
+	"kzapp/webapi/db"
 	"kzapp/webapi/pkg"
-	
+
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -10,8 +11,21 @@ import (
 	"testing"
 )
 
+type MockUserDao struct {}
+func (m *MockUserDao) CreateUser(user db.User) error {
+	return nil
+}
+func (m *MockUserDao) GetUsers() ([]db.User, error) {
+	return nil, nil
+}
+func (m *MockUserDao) DeleteUser(id int) error {
+	return nil
+}
+
 func runTest(task func(target UserHandler)) {
-	target := CreateUserHandler([]byte("super-secret-key"))
+	// 創建模擬的 UserDao
+	mockUserDao := &MockUserDao {}
+	target := CreateUserHandler([]byte("super-secret-key"), mockUserDao)
 	task(target)
 }
 
