@@ -3,10 +3,12 @@ package user
 import (
 	"encoding/json"
 	"fmt"
+	"kzapp/webapi/db"
+	"kzapp/webapi/pkg"
+	"net/http"
+
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
-	"net/http"
-	"kzapp/webapi/pkg"
 )
 
 type UserHandler struct {
@@ -14,16 +16,20 @@ type UserHandler struct {
 	// example: []byte("super-secret-key")
 	key   []byte
 	store *sessions.CookieStore
+	userDao db.UserDao
 }
 
-func CreateUserHandler(key []byte) UserHandler {
+func CreateUserHandler(key []byte, userDao db.UserDao) UserHandler {
 	return UserHandler{
 		key:   key,
 		store: sessions.NewCookieStore(key),
+		userDao: userDao,
 	}
 }
 
 func (h UserHandler) InitService(router *mux.Router) {
+	// router.HandleFunc("/sginup", pkg.Chain(h.sginup, pkg.Method("POST"), pkg.Logging()))
+
 	router.HandleFunc("/login", pkg.Chain(h.login, pkg.Method("POST"), pkg.Logging()))
 	router.HandleFunc("/logout", pkg.Chain(h.logout, pkg.Method("POST"), pkg.Logging()))
 	router.HandleFunc("/info", pkg.Chain(h.userSecretData, pkg.Method("GET"), pkg.Logging()))
@@ -49,6 +55,19 @@ func (h UserHandler) userSecretData(w http.ResponseWriter, r *http.Request) {
 	// Print secret message
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintln(w, "The cake is a lie!")
+}
+
+func (h UserHandler) signup(w http.ResponseWriter, r *http.Request) {
+	var req db.User
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil || req.Name == "" {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+
+
+
 }
 
 // example: curl -s -I -XPOST http://localhost:80/login -d '{"name":"kzzz"}'

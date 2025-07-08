@@ -6,12 +6,14 @@ import (
 )
 
 type User struct {
-	ID int // primary key
-	Name string
-	Email string
-	Password string // hash
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	// primary key auto increment 
+	ID int `json:"id,omitempty"`
+	Name string `json:"name"`
+	Email string `json:"email"`
+	// hash
+	Password string `json:"password"` 
+	CreatedAt time.Time `json:"_"`
+	UpdatedAt time.Time `json:"_"`
 }
 
 type UserDao interface {
