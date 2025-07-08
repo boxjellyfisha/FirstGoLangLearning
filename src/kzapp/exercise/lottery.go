@@ -83,19 +83,19 @@ func EnterLottery(persion int, times int) {
 	wg.Add(persion)
 
 	for i := range persion {
-		go func() {
+		go func(personID int) {
 			defer wg.Done()
 
-			fmt.Println("person " + strconv.Itoa(i) + " start lottery")
+			fmt.Println("person " + strconv.Itoa(personID) + " start lottery")
 			gifts := Lottery(times)
 			if len(gifts) > 0 {
 				giftNames := make([]string, len(gifts))
-				for i, gift := range gifts {
-					giftNames[i] = gift.Name
+				for j, gift := range gifts {
+					giftNames[j] = gift.Name
 				}
-				fmt.Println("person " + strconv.Itoa(i) + " got " + strings.Join(giftNames, ", "))
+				fmt.Println("person " + strconv.Itoa(personID) + " got " + strings.Join(giftNames, ", "))
 			}
-		}()
+		}(i)
 	}
 	wg.Wait()
 

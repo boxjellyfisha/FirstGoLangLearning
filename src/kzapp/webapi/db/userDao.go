@@ -12,8 +12,8 @@ type User struct {
 	Email string `json:"email"`
 	// hash
 	Password  string    `json:"password"`
-	CreatedAt time.Time `json:"_"`
-	UpdatedAt time.Time `json:"_"`
+	CreatedAt time.Time `json:"-"`
+	UpdatedAt time.Time `json:"-"`
 }
 
 type UserDao interface {
@@ -55,8 +55,9 @@ func (u *UserDaoImpl) FindUserByName(name string) (*User, error) {
 		err = rows.Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.CreatedAt, &user.UpdatedAt)
 		if err != nil {
 			return nil, err
+		} else {
+			return &user, nil
 		}
-		return &user, nil
 	}
 	return nil, nil
 }
