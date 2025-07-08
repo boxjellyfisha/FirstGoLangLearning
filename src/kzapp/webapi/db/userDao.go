@@ -6,19 +6,20 @@ import (
 )
 
 type User struct {
-	// primary key auto increment 
-	ID int `json:"id,omitempty"`
-	Name string `json:"name"`
+	// primary key auto increment
+	ID    int    `json:"id,omitempty"`
+	Name  string `json:"name"`
 	Email string `json:"email"`
 	// hash
-	Password string `json:"password"` 
+	Password  string    `json:"password"`
 	CreatedAt time.Time `json:"_"`
 	UpdatedAt time.Time `json:"_"`
 }
 
 type UserDao interface {
-	CreateUser(user User) error
+	CreateUser(user User) (int64, error)
 	GetUsers() ([]User, error)
+	FindUserByName(name string) (*User, error)
 	DeleteUser(id int) error
 }
 
@@ -26,20 +27,38 @@ type UserDaoImpl struct {
 	db *sql.DB
 }
 
-func (u *UserDaoImpl) CreateUser(user User) error {
+func (u *UserDaoImpl) CreateUser(user User) (int64, error) {
 	stmt, err := u.db.Prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)")
-	
+
 	if err != nil {
-		return err
+		return -1, err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(user.Name, user.Email, user.Password)
+	result, err := stmt.Exec(user.Name, user.Email, user.Password)
 	if err != nil {
-		return err
+		return -1, err
 	}
 
-	return nil
+	return result.LastInsertId()
+}
+
+func (u *UserDaoImpl) FindUserByName(name string) (*User, error) {
+	rows, err := u.db.Query("SELECT * FROM users WHERE name = ?", name)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var user User
+		err = rows.Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.CreatedAt, &user.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+		return &user, nil
+	}
+	return nil, nil
 }
 
 func (u *UserDaoImpl) GetUsers() ([]User, error) {

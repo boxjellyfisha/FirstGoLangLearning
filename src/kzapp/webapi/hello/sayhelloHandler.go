@@ -115,7 +115,13 @@ func containsDotDot(path string) bool {
 }
 
 func (h GreetingHandler) sayhello(w http.ResponseWriter, r *http.Request) {
-	mdFilepath := "./../webapi/hello/README.md"
+	fileName := "README.md"
+	currentDir, err := pkg.GetCurrentDir()
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError	)
+		return
+	}
+	mdFilepath := filepath.Join(currentDir, "hello", fileName)
 
 	// Read the Markdown file content
 	markdownBytes, err := os.ReadFile(mdFilepath)

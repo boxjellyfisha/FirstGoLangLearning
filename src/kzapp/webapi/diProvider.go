@@ -2,7 +2,6 @@ package webapi
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"path/filepath"
 	"sync"
@@ -12,6 +11,7 @@ import (
 	"kzapp/webapi/count"
 	"kzapp/webapi/db"
 	"kzapp/webapi/hello"
+	"kzapp/webapi/pkg"
 	"kzapp/webapi/user"
 )
 
@@ -44,8 +44,13 @@ var (
 
 func ProvideUserDao() (db.UserDao, error) {
 	once.Do(func() {
-		dbPath := filepath.Join("db", "test.db")
-		fmt.Println(dbPath)
+		currentDir, err := pkg.GetCurrentDir()
+		if err != nil {
+			initError = errors.New("failed to get current directory")
+			return
+		}
+		dbPath := filepath.Join(currentDir, "db", "test.db")
+		log.Println("資料庫路徑:", dbPath)
 
 		firstDB := db.NewFirstDB(dbPath)
 		if firstDB == nil {
@@ -70,18 +75,4 @@ func Shutdown() error {
 		return firstDBSingleton.Close()
 	}
 	return nil
-}
-
-func newFunction(userDao db.UserDao) {
-	// go userDao.CreateUser(db.User{
-	// 	Name:     "John Doe",
-	// 	Email:    "john.doe@example.com",
-	// 	Password: "password",
-	// })
-	users := make([]db.User, 2)
-	go func() {
-		user, _ := userDao.GetUsers()
-		copy(users, user)
-	}()
-	defer log.Println(users)
 }

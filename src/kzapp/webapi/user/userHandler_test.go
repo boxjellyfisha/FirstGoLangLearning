@@ -12,11 +12,14 @@ import (
 )
 
 type MockUserDao struct {}
-func (m *MockUserDao) CreateUser(user db.User) error {
-	return nil
+func (m *MockUserDao) CreateUser(user db.User) (int64, error) {
+	return 0, nil
 }
 func (m *MockUserDao) GetUsers() ([]db.User, error) {
-	return nil, nil
+	return make([]db.User, 0), nil
+}
+func (m *MockUserDao) FindUserByName(name string) (*db.User, error) {
+	return &db.User{}, nil
 }
 func (m *MockUserDao) DeleteUser(id int) error {
 	return nil
