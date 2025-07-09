@@ -2,7 +2,7 @@ package hello
 
 import (
 	"fmt"
-	"html/template" // For HTML templates (optional but good practice)
+	"html/template" // 用於 HTML 樣板（可選但建議使用）
 	"kzapp/webapi/pkg"
 	"log"
 	"net/http"
@@ -10,6 +10,7 @@ import (
 	"path/filepath" // For safe path joining
 	"strings"
 
+	"github.com/gin-gonic/gin"
 	"github.com/gorilla/mux"
 
 	markdown "github.com/gomarkdown/markdown" // Markdown parser
@@ -18,6 +19,15 @@ import (
 )
 
 type GreetingHandler struct{}
+
+// for compile time check
+var _ pkg.Handler = (*GreetingHandler)(nil)
+
+func (h GreetingHandler) InitServiceGin(router *gin.Engine) {
+	router.GET("/", pkg.ChainGin(h.sayhello), gin.Logger())
+	router.GET("/greet", pkg.ChainGin(h.greet), gin.Logger())
+	router.GET("/img/{image}", pkg.ChainGin(h.giveMeCorgi), gin.Logger())
+}
 
 func (h GreetingHandler) InitService(router *mux.Router) {
 	router.HandleFunc("/", pkg.Chain(h.sayhello, pkg.Method("GET"), pkg.Logging()))
@@ -118,7 +128,7 @@ func (h GreetingHandler) sayhello(w http.ResponseWriter, r *http.Request) {
 	fileName := "README.md"
 	currentDir, err := pkg.GetCurrentDir()
 	if err != nil {
-		http.Error(w, "Internal server error", http.StatusInternalServerError	)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 	mdFilepath := filepath.Join(currentDir, "hello", fileName)

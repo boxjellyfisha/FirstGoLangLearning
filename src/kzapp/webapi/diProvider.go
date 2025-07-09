@@ -6,8 +6,6 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/gorilla/mux"
-
 	"kzapp/webapi/count"
 	"kzapp/webapi/db"
 	"kzapp/webapi/hello"
@@ -15,20 +13,16 @@ import (
 	"kzapp/webapi/user"
 )
 
-type Handler interface {
-	InitService(route *mux.Router)
-}
-
-func CreateHandler() []Handler {
+func CreateHandler() []pkg.Handler {
 	userDao, err := ProvideUserDao()
 	if err != nil {
 		log.Fatal(err)
-		return []Handler{
+		return []pkg.Handler{
 			hello.GreetingHandler{},
 			count.Calculator{},
 		}
 	}
-	return []Handler{
+	return []pkg.Handler{
 		hello.GreetingHandler{},
 		count.Calculator{},
 		user.CreateUserHandler([]byte("super-secret-key"), userDao),

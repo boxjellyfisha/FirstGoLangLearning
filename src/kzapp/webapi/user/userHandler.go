@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 )
@@ -19,6 +20,8 @@ type UserHandler struct {
 	store   *sessions.CookieStore
 	userDao db.UserDao
 }
+
+var _ pkg.Handler = (*UserHandler)(nil)
 
 func CreateUserHandler(key []byte, userDao db.UserDao) UserHandler {
 	return UserHandler{
@@ -34,6 +37,13 @@ func (h UserHandler) InitService(router *mux.Router) {
 	router.HandleFunc("/login", pkg.Chain(h.login, pkg.Method("POST"), pkg.Logging()))
 	router.HandleFunc("/logout", pkg.Chain(h.logout, pkg.Method("POST"), pkg.Logging()))
 	router.HandleFunc("/info", pkg.Chain(h.userSecretData, pkg.Method("GET"), pkg.Logging()))
+}
+
+func (h UserHandler) InitServiceGin(router *gin.Engine) {
+	router.POST("/signup", pkg.ChainGin(h.signup), gin.Logger())
+	router.POST("/login", pkg.ChainGin(h.login), gin.Logger())
+	router.POST("/logout", pkg.ChainGin(h.logout), gin.Logger())
+	router.GET("/info", pkg.ChainGin(h.userSecretData), gin.Logger())
 }
 
 // example: curl -s --cookie "cookie-name=MTc0OTIwNzc2OHxEWDhFQVFMX2dBQUJFQUVRQUFBbF80QUFBUVp6ZEhKcGJtY01Ed0FOWVhWMGFHVnVkR2xqWVhSbFpBUmliMjlzQWdJQUFRPT184yNJN4tqSV2k9vtr72fgHJiib5ZUTwe7aeatyygo2ro=" http://localhost:80/info
