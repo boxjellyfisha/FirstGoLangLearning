@@ -21,7 +21,22 @@ type UserHandler struct {
 	userDao db.UserDao
 }
 
+// 第一行：var _ pkg.Handler = (*UserHandler)(nil)
+// 這行是用來在編譯時期檢查 UserHandler 是否有實作 pkg.Handler 介面，
+// 這裡用的是 UserHandler 的指標型別（*UserHandler），代表你通常會用指標方式傳遞 handler。
+
+// 第二行：var _ pkg.Handler = UserHandler{}
+// 這行則是用來檢查 UserHandler 的值型別（非指標）是否有實作 pkg.Handler 介面，
+// 這代表你也可以直接用值型別來傳遞 handler。
+
+// 兩者差異：
+// - (*UserHandler)(nil) 是指標型別，UserHandler{} 是值型別。
+// - 這兩行都只是型別檢查，不會產生任何執行時的程式碼。
+// - 如果你的方法接收器是指標（func (h *UserHandler) ...），只有第一行會通過； -> 如果實作本身會更改 UserHandler 內的成員變數，則使用指標型別
+//   如果是值接收器（func (h UserHandler) ...），兩行都會通過。 -> 如果實作本身不會更改 UserHandler 內的成員變數，則使用值型別
 var _ pkg.Handler = (*UserHandler)(nil)
+
+var _ pkg.Handler = UserHandler{}
 
 func CreateUserHandler(key []byte, userDao db.UserDao) UserHandler {
 	return UserHandler{
