@@ -34,7 +34,7 @@ COPY --from=builder /kz/cmd/res ./res
 RUN chmod +x ./app && ls -la
 
 # Expose the port your app listens on (change if needed)
-EXPOSE 8080
+EXPOSE 80
 
 # Run the binary with debug info
 CMD ["sh", "-c", "ls res && ./app"]
