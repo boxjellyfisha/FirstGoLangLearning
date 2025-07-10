@@ -12,10 +12,21 @@ func JsonResponse(w http.ResponseWriter, response any) {
 	json.NewEncoder(w).Encode(response)
 }
 
-func GetCurrentDir() (string, error) {
+func GetResourceDir() (string, error) {
 	dir, err := os.Getwd()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(dir, "..","webapi"), nil
+	var dbPath = filepath.Join(dir, "res")
+
+	if !dirExists(dbPath) {
+		os.Mkdir(dbPath, 0755)
+	}
+
+	return dbPath, nil
+}
+
+func dirExists(path string) bool {
+	info, err := os.Stat(path)
+	return err == nil && info.IsDir()
 }

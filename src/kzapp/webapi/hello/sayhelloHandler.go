@@ -71,7 +71,7 @@ func (h GreetingHandler) giveMeCorgi(w http.ResponseWriter, r *http.Request) {
 	// 4. 不需要複雜路由邏輯的檔案服務
 
 	// 設定圖片目錄路徑
-	imageDir := "webapi/images/"
+	imageDir := "images/"
 	supportedFormats := map[string]string{
 		".jpg":  "image/jpeg",
 		".jpeg": "image/jpeg",
@@ -126,12 +126,12 @@ func containsDotDot(path string) bool {
 
 func (h GreetingHandler) sayhello(w http.ResponseWriter, r *http.Request) {
 	fileName := "README.md"
-	currentDir, err := pkg.GetCurrentDir()
+	currentDir, err := pkg.GetResourceDir()
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
-	mdFilepath := filepath.Join(currentDir, "hello", fileName)
+	mdFilepath := filepath.Join(currentDir, fileName)
 
 	// Read the Markdown file content
 	markdownBytes, err := os.ReadFile(mdFilepath)

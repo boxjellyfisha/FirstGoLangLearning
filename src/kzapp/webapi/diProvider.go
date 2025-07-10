@@ -38,12 +38,12 @@ var (
 
 func ProvideUserDao() (db.UserDao, error) {
 	once.Do(func() {
-		currentDir, err := pkg.GetCurrentDir()
+		currentDir, err := pkg.GetResourceDir()
 		if err != nil {
 			initError = errors.New("failed to get current directory")
 			return
 		}
-		dbPath := filepath.Join(currentDir, "db", "test.db")
+		dbPath := filepath.Join(currentDir, "test.db")
 		log.Println("資料庫路徑:", dbPath)
 
 		firstDB := db.NewFirstDB(dbPath)

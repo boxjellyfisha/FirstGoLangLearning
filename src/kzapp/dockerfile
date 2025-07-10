@@ -1,0 +1,40 @@
+# Use official Go image as the build stage
+FROM golang:1.24.3 AS builder
+
+# Set environment variables for cross-compilation
+ENV CGO_ENABLED=1
+ENV GOOS=linux
+ENV GOARCH=amd64
+ENV CC=gcc
+ENV CGO_LDFLAGS="-static"
+
+WORKDIR /kz
+
+# Copy go.mod and go.sum first (for better caching)
+ADD go.mod .
+ADD go.sum .
+RUN go mod download
+
+# Copy the entire app
+COPY . .
+
+# Build the Go app with static linking
+RUN go build -ldflags="-s -w" -o ./app cmd/main.go && ls -la
+
+# Use a smaller base image for the final container
+FROM debian:bullseye-slim
+
+# Install necessary packages for running Go binaries with SQLite3
+RUN apt-get update && apt-get install -y ca-certificates sqlite3 && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /kz
+# Copy the binary from the builder stage
+COPY --from=builder /kz/app .
+COPY --from=builder /kz/cmd/res ./res
+RUN chmod +x ./app && ls -la
+
+# Expose the port your app listens on (change if needed)
+EXPOSE 8080
+
+# Run the binary with debug info
+CMD ["sh", "-c", "ls res && ./app"]
