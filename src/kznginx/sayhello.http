@@ -1,0 +1,8 @@
+### Try to access kznginx
+GET https://kzzz.kalay.us:80
+
+### Try hello world
+GET https://kzzz.kalay.us:443/hello
+
+### Try say hello
+GET https://kzzz.kalay.us:443/

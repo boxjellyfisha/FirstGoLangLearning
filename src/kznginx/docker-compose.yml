@@ -1,0 +1,31 @@
+services:
+  nginx:
+    # use the local dockerfile
+    env_file:
+      - .env
+    build: ./
+    container_name: kznginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ${MY_DATA_DIR}/data/config/nginx/global:/etc/nginx/global
+      - ${MY_DATA_DIR}/data/config/nginx/conf:/etc/nginx/conf.d
+      - ${MY_DATA_DIR}/data/certs:/etc/nginx/ssl
+      - ${MY_DATA_DIR}/data/logs/nginx:/var/log/nginx
+    depends_on:
+      - first-go-app
+      - tutk-hub-helloworld
+  first-go-app:
+    image: first-go-app:latest
+    container_name: first-go-app
+    ports:
+      - "81:80"
+  tutk-hub-helloworld:
+    image: tutk-hub.kalay.us/helloworld:1.0.1
+    container_name: tutk-hub-helloworld
+    ports:
+      - "82:8888"
+
+#  docker compose -f kznginx/docker-compose.yml down
+#  docker compose -f 'kznginx/docker-compose.yml' up -d --build 'nginx'     
