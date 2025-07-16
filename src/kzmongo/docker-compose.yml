@@ -1,0 +1,18 @@
+services:
+  mongodb:
+    env_file:
+      - .env
+    image: mongo:latest
+    # or use local dockerfile
+    # build:
+    #   context: .
+    #   dockerfile: dockerfile
+
+    container_name: kzmongodb
+    volumes:
+      - ${MY_DATA_DIR}/data/mongodb:/data/db
+    ports:
+      - 27017:27017
+    restart: unless-stopped
+
+#  docker compose -f 'kzmongo/docker-compose.yml' up -d --build 'mongodb'     

@@ -1,0 +1,8 @@
+FROM mongo:latest
+
+EXPOSE 27017
+
+CMD ["mongod", "--bind_ip_all"]
+
+# mongod --dbpath /Users/kellyhong/Documents/workspace-go/kz/src/kzmongo/data/mongodb --port 27017 --bind_ip_all
+
