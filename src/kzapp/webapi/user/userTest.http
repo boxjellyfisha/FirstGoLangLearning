@@ -1,0 +1,32 @@
+### Create user
+POST http://localhost:8080/signup
+Content-Type: application/json
+
+{
+    "name": "test",
+    "email": "test@test.com",
+    "password": "test"
+}  
+
+### Get all users
+GET http://localhost:8080/users
+
+### login unknown user
+POST http://localhost:8080/login 
+Content-Type: application/json
+
+{ 
+    "name":"kzzz"
+}
+
+### login user
+POST http://localhost:8080/login 
+Content-Type: application/json
+
+{
+    "name":"test"
+}
+
+### logout user
+GET http://localhost:80/logout
+Cookie: MTc0OTIwNzc2OHxEWDhFQVFMX2dBQUJFQUVRQUFBbF80QUFBUVp6ZEhKcGJtY01Ed0FOWVhWMGFHVnVkR2xqWVhSbFpBUmliMjlzQWdJQUFRPT184yNJN4tqSV2k9vtr72fgHJiib5ZUTwe7aeatyygo2ro=

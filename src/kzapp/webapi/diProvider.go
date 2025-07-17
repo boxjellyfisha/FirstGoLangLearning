@@ -38,15 +38,8 @@ var (
 
 func ProvideUserDao() (db.UserDao, error) {
 	once.Do(func() {
-		currentDir, err := pkg.GetResourceDir()
-		if err != nil {
-			initError = errors.New("failed to get current directory")
-			return
-		}
-		dbPath := filepath.Join(currentDir, "test.db")
-		log.Println("資料庫路徑:", dbPath)
-
-		firstDB := db.NewFirstDB(dbPath)
+		// create sqlite db
+		firstDB := createRealDB()
 		if firstDB == nil {
 			initError = errors.New("failed to initialize database")
 			return
@@ -55,6 +48,29 @@ func ProvideUserDao() (db.UserDao, error) {
 		userDaoSingleton = firstDB.UserDao
 	})
 	return userDaoSingleton, initError
+}
+
+func createRealDB() *db.FirstDB {
+	// dbPath := getSqliteDBPath()
+	// if dbPath == "" {
+	// 	return nil
+	// }
+	// firstDB := db.NewFirstSqliteDB(dbPath)
+
+	// create mongo db
+	firstDB := db.NewFirstMongoDB("mongodb://kzmongodb:27017")
+	return firstDB
+}
+
+func getSqliteDBPath() (string) {
+	currentDir, err := pkg.GetResourceDir()
+	if err != nil {
+		initError = errors.New("failed to get current directory")
+		return ""
+	}
+	dbPath := filepath.Join(currentDir, "test.db")
+	log.Println("資料庫路徑:", dbPath)
+	return dbPath
 }
 
 // GetInitError 返回初始化錯誤（如果有的話）

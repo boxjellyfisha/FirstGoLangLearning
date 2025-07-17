@@ -12,7 +12,10 @@ import (
 )
 
 type MockUserDao struct {}
-func (m *MockUserDao) CreateUser(user db.User) (int64, error) {
+
+var _ db.UserDao = (*MockUserDao)(nil)
+
+func (m *MockUserDao) CreateUser(user db.User) (int, error) {
 	return 0, nil
 }
 func (m *MockUserDao) GetUsers() ([]db.User, error) {

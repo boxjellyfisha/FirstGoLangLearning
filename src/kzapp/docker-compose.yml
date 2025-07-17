@@ -1,0 +1,17 @@
+services:
+  testapp:
+    # image: kzapp-testapp:latest
+    build: ./
+    container_name: testapp
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    networks:
+      - kz-shared-network
+
+networks:
+  kz-shared-network:
+    driver: bridge
+    external: true
+
+# docker compose -f docker-compose.yml up --build 'testapp' 
