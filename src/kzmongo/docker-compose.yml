@@ -10,7 +10,7 @@ services:
 
     container_name: kzmongodb
     volumes:
-      - ${MY_DATA_DIR}/data/mongodb:/data/db
+      - ${MY_DB_DIR}/data/mongodb:/data/db
     ports:
       - 27017:27017
     restart: unless-stopped

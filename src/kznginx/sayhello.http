@@ -6,3 +6,29 @@ GET https://kzzz.kalay.us:443/hello
 
 ### Try say hello
 GET https://kzzz.kalay.us:443/
+
+### Create user
+POST https://kzzz.kalay.us:443/signup
+Content-Type: application/json
+
+{
+    "name": "test",
+    "email": "test@test.com",
+    "password": "test"
+}  
+
+### login unknown user
+POST https://kzzz.kalay.us:443/login 
+Content-Type: application/json
+
+{ 
+    "name":"kzzz"
+}
+
+### login user
+POST https://kzzz.kalay.us:443/login 
+Content-Type: application/json
+
+{
+    "name":"test"
+}

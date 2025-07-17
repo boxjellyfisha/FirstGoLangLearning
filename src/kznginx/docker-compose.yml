@@ -13,19 +13,30 @@ services:
       - ${MY_DATA_DIR}/data/config/nginx/conf:/etc/nginx/conf.d
       - ${MY_DATA_DIR}/data/certs:/etc/nginx/ssl
       - ${MY_DATA_DIR}/data/logs/nginx:/var/log/nginx
+    restart: always  
     depends_on:
       - first-go-app
       - tutk-hub-helloworld
   first-go-app:
-    image: first-go-app:latest
+    image: kzapp-testapp:latest
     container_name: first-go-app
+    restart: unless-stopped
+    depends_on:
+      - mongodb
     ports:
       - "81:80"
   tutk-hub-helloworld:
     image: tutk-hub.kalay.us/helloworld:1.0.1
     container_name: tutk-hub-helloworld
+    restart: unless-stopped
     ports:
       - "82:8888"
 
+
 #  docker compose -f kznginx/docker-compose.yml down
 #  docker compose -f 'kznginx/docker-compose.yml' up -d --build 'nginx'     
+
+
+
+#  docker compose -f kzmongo/docker-compose.yml -f kznginx/docker-compose.yml up -d --build 'nginx'     
+#  docker compose -f kznginx/docker-compose.yml -f kzmongo/docker-compose.yml up -d --build 'nginx'     

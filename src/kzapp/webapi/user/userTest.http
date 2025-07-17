@@ -8,9 +8,6 @@ Content-Type: application/json
     "password": "test"
 }  
 
-### Get all users
-GET http://localhost:8080/users
-
 ### login unknown user
 POST http://localhost:8080/login 
 Content-Type: application/json
