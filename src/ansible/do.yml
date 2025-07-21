@@ -9,6 +9,7 @@
   vars_files:
     - templates/config.base.yml
     - "templates/config.{{ dev_mode | default('dev') }}.yml"
+    - vault.yml
   
   tasks:
   - name: Visualize the environment variables
@@ -19,6 +20,7 @@
         - "DB Host: {{ mongodb.host }}"
         - "Data Path: {{ data_dir }}"
         - "Debug: {{ debug }}"
+        - "Teams Webhook Configured: {{ teams_webhook_url | default('Not configured') | length > 0 }}"
     
   - name: Create the necessary directories
     file:
@@ -28,7 +30,9 @@
     loop:
       - "{{ data_dir }}"
       - "{{ db_dir }}"
-    tags: never, create_dirs
+    tags:
+      - never
+      - create_dirs
 
   - name: Build and create the docker-compose.yml
     template:
@@ -36,6 +40,29 @@
       dest: docker-compose.yml
       mode: '0644'
     tags: build_docker_compose
+
+  - name: Send a message to Teams
+    # using the community.general.teams_webhook module:
+    # https://docs.ansible.com/ansible/latest/collections/community/general/teams_webhook_module.html
+    # community.general.teams_webhook:
+    #   url: "{{ teams_webhook_url }}"
+    #   message: "{{ message }}"
+    # 
+    #
+    # or use the uri module
+    uri:
+      url: "{{ teams_webhook_uri }}"
+      method: POST
+      headers:
+        Content-Type: "application/json"
+      body: >
+        {
+          "text": "✅ Swagger updated for {{ app.name }} at {{ ansible_date_time.iso8601 }}"
+        }
+      body_format: json  
+    when: teams_webhook_uri | length > 0 
+    ignore_errors: yes  
+    tags: send_teams_message
   
   - name: Run the docker compose
     # using the docker_compose_v2 module

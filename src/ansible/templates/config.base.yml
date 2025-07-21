@@ -19,3 +19,8 @@ nginx:
   port: 80
   ssl_port: 443
   container_name: "kznginx"
+
+# Teams 通知配置 teams_webhook_uri
+# ansible-vault create ansible/vault.yml
+# ansible-vault edit ansible/vault.yml
+# ansible-vault view ansible/vault.yml
