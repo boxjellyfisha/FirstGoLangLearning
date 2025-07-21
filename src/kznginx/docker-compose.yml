@@ -3,7 +3,8 @@ services:
     # use the local dockerfile
     env_file:
       - .env
-    build: ./
+    # build: ./
+    image: kznginx:latest
     container_name: kznginx
     ports:
       - "80:80"

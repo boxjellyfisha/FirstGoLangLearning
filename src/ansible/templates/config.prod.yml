@@ -1,0 +1,3 @@
+debug: true
+data_dir: "kznginx"
+db_dir: "kzmongo"

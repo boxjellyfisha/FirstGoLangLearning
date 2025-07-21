@@ -1,0 +1,21 @@
+# 全域變數配置
+---
+# 資料庫配置
+mongodb:
+  host: "kzmongodb"
+  port: 27017
+  database: "kzapp"
+
+mongodb_uri: "mongodb://{{ mongodb.host }}:{{ mongodb.port }}"
+
+# 應用程式配置
+app:
+  name: "kzapp"
+  port: 81
+  container_name: "first-go-app"
+
+# Nginx 配置
+nginx:
+  port: 80
+  ssl_port: 443
+  container_name: "kznginx"

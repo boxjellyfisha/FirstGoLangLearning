@@ -1,0 +1,53 @@
+# Playbook for kzapp quick start
+# ansible-playbook -i ansible/inventory.ini ansible/do.yml -e "dev_mode=dev"
+---
+- name: Deploy kzapp application
+  hosts: localhost
+  connection: local
+  
+  # load the config files
+  vars_files:
+    - templates/config.base.yml
+    - "templates/config.{{ dev_mode | default('dev') }}.yml"
+  
+  tasks:
+  - name: Visualize the environment variables
+    debug:
+      msg:
+        - "Environment: {{ dev_mode | default('dev') }}"
+        - "Port: {{ app.name }}"
+        - "DB Host: {{ mongodb.host }}"
+        - "Data Path: {{ data_dir }}"
+        - "Debug: {{ debug }}"
+    
+  - name: Create the necessary directories
+    file:
+      path: "{{ item }}"
+      state: directory
+      mode: '0755'
+    loop:
+      - "{{ data_dir }}"
+      - "{{ db_dir }}"
+    tags: never, create_dirs
+
+  - name: Build and create the docker-compose.yml
+    template:
+      src: templates/docker-compose.yml.j2
+      dest: docker-compose.yml
+      mode: '0644'
+    tags: build_docker_compose
+  
+  - name: Run the docker compose
+    # using the docker_compose_v2 module
+    # https://docs.ansible.com/ansible/latest/collections/community/docker/docker_compose_v2_module.html
+    # it will use the docker-compose.yml file in the current directory
+    community.docker.docker_compose_v2:
+      project_src: .
+    # or we can use the command line like:
+    # command: docker compose up -d
+
+      state: present
+      build: policy
+      pull: missing
+      remove_orphans: true
+    tags: run_docker_compose

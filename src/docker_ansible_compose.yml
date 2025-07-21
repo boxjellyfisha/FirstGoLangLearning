@@ -1,0 +1,14 @@
+services:
+  ansible:
+    build:
+      context: .
+      dockerfile: ansible.dockerfile
+    # image: src-ansible:latest
+    volumes:
+      - ${PWD}:/ansible
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: -i ansible/inventory.ini ansible/do.yml -e "environment=prod"
+    ports:
+      - "2222:22"
+
+# docker compose -f docker_ansible_compose.yml up -d "ansible"

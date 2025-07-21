@@ -1,0 +1,56 @@
+# templates/docker-compose.yml.j2
+services:
+    mongodb:
+        image: mongo:latest
+        container_name: kzmongodb
+        ports:
+            - "27017:27017"
+        volumes:
+            - "/Users/kellyhong/Documents/workspace-go/kz/src/kzmongo/data/mongodb:/data/db"
+        restart: unless-stopped
+        networks:
+            - kz-network
+
+    app:
+        image: kzapp-testapp:latest
+        container_name: "first-go-app"
+        ports:
+            - "8080:81"
+        restart: unless-stopped
+        depends_on:
+            - mongodb
+        networks:
+            - kz-network
+        environment:
+            - MONGODB_URI=mongodb://mongodb:27017
+
+    hello:
+        image: tutk-hub.kalay.us/helloworld:1.0.1
+        container_name: "tutk-hub-helloworld"
+        ports:
+            - "82:8888"
+        restart: unless-stopped
+        networks:
+            - kz-network
+
+    nginx:
+        image: nginx:latest
+        container_name: "kznginx"
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - "/Users/kellyhong/Documents/workspace-go/kz/src/kznginx/data/config/nginx/global:/etc/nginx/global"
+            - "/Users/kellyhong/Documents/workspace-go/kz/src/kznginx/data/config/nginx/conf:/etc/nginx/conf.d"
+            - "/Users/kellyhong/Documents/workspace-go/kz/src/kznginx/data/certs:/etc/nginx/ssl"
+            - "/Users/kellyhong/Documents/workspace-go/kz/src/kznginx/data/logs/nginx:/var/log/nginx"
+        restart: always
+        depends_on:
+            - app
+            - hello
+        networks:
+            - kz-network
+
+networks:
+    kz-network:
+        driver: bridge

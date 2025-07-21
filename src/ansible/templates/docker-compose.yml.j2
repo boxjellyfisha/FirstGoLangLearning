@@ -1,0 +1,56 @@
+# templates/docker-compose.yml.j2
+services:
+    mongodb:
+        image: mongo:latest
+        container_name: kzmongodb
+        ports:
+            - "{{ mongodb.port }}:{{ mongodb.port }}"
+        volumes:
+            - "{{ db_dir }}/data/mongodb:/data/db"
+        restart: unless-stopped
+        networks:
+            - kz-network
+
+    app:
+        image: kzapp-testapp:latest
+        container_name: "{{ app.container_name }}"
+        ports:
+            - "8080:{{ app.port }}"
+        restart: unless-stopped
+        depends_on:
+            - mongodb
+        networks:
+            - kz-network
+        environment:
+            - MONGODB_URI=mongodb://mongodb:{{ mongodb.port }}
+
+    hello:
+        image: tutk-hub.kalay.us/helloworld:1.0.1
+        container_name: "tutk-hub-helloworld"
+        ports:
+            - "82:8888"
+        restart: unless-stopped
+        networks:
+            - kz-network
+
+    nginx:
+        image: nginx:latest
+        container_name: "{{ nginx.container_name }}"
+        ports:
+            - "{{ nginx.port }}:{{ nginx.port }}"
+            - "{{ nginx.ssl_port }}:{{ nginx.ssl_port }}"
+        volumes:
+            - "{{ data_dir }}/data/config/nginx/global:/etc/nginx/global"
+            - "{{ data_dir }}/data/config/nginx/conf:/etc/nginx/conf.d"
+            - "{{ data_dir }}/data/certs:/etc/nginx/ssl"
+            - "{{ data_dir }}/data/logs/nginx:/var/log/nginx"
+        restart: always
+        depends_on:
+            - app
+            - hello
+        networks:
+            - kz-network
+
+networks:
+    kz-network:
+        driver: bridge
