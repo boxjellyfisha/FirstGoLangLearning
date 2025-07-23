@@ -1,3 +1,8 @@
 debug: true
-data_dir: "kznginx"
-db_dir: "kzmongo"
+# data_dir: "/ansible/kznginx"
+# db_dir: "/ansible/kzmongo"
+# swagger_dir: "/ansible/kzapp"
+
+data_dir: "./kznginx"
+db_dir: "./kzmongo"
+swagger_dir: "./kzapp"

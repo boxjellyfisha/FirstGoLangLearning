@@ -1,5 +1,6 @@
 # Playbook for kzapp quick start
 # ansible-playbook -i ansible/inventory.ini ansible/do.yml -e "dev_mode=dev"
+# ansible-playbook -i ansible/inventory.ini ansible/do.yml -e "dev_mode=dev" --vault-password-file ansible/.vault_pass -t generate_swagger_json
 ---
 - name: Deploy kzapp application
   hosts: localhost
@@ -30,16 +31,73 @@
     loop:
       - "{{ data_dir }}"
       - "{{ db_dir }}"
-    tags:
+      - "{{ db_dir }}/data/mongodb"
+      - "{{ swagger_dir }}/cmd/docs"
+      - "{{ data_dir }}/data/config/nginx/global"
+      - "{{ data_dir }}/data/config/nginx/conf"
+      - "{{ data_dir }}/data/certs"
+      - "{{ data_dir }}/data/logs/nginx"
+    tags: 
       - never
       - create_dirs
+
+  - name: Generate the swagger.json file
+    command: "/Users/kellyhong/go/bin/swag init -g cmd/main.go -d . -o ./cmd/docs"
+    args:
+      # change the directory to the swagger_dir
+      chdir: "{{ swagger_dir }}"
+    tags: generate_swagger_json
+    delegate_to: localhost
+    when: dev_mode == 'dev'
+
+  - name: Get the go path
+    command: "go env GOPATH"
+    register: go_path
+    tags: generate_swagger_json
+    when: dev_mode == 'prod'  
+
+  - name: Generate the swagger.json file for production
+    command: "{{ go_path.stdout }}/bin/swag init -g ../kzapp/cmd/main.go -d . -o ../kzapp/cmd/docs"
+    # args:
+    #   # change the directory to the swagger_dir
+    #   chdir: "/ansible/kzapp"
+    tags: generate_swagger_json
+    when: dev_mode == 'prod'  
+
+  # - name: Print current working directory
+  #   command: "ls"
+  #   args:
+  #     # change the directory to the swagger_dir
+  #     chdir: "/ansible/kzapp"
+  #   register: pwd_result
+
+  # - name: Display current working directory
+  #   debug:
+  #     msg: "Current working directory: {{ pwd_result.stdout }}" 
 
   - name: Build and create the docker-compose.yml
     template:
       src: templates/docker-compose.yml.j2
       dest: docker-compose.yml
       mode: '0644'
-    tags: build_docker_compose
+    tags: build_docker_compose  
+  
+  - name: Run the docker compose
+    # using the docker_compose_v2 module
+    # https://docs.ansible.com/ansible/latest/collections/community/docker/docker_compose_v2_module.html
+    # it will use the docker-compose.yml file in the current directory
+    community.docker.docker_compose_v2:
+      project_src: .
+      state: present
+      build: policy
+      pull: missing
+      remove_orphans: true
+
+    # or we can use the command line like:
+    # command: docker compose -f ansible/docker-compose.yml up -d 
+    # args:
+    #   chdir: "/ansible"  
+    tags: run_docker_compose
 
   - name: Send a message to Teams
     # using the community.general.teams_webhook module:
@@ -57,24 +115,9 @@
         Content-Type: "application/json"
       body: >
         {
-          "text": "✅ Swagger updated for {{ app.name }} at {{ ansible_date_time.iso8601 }}"
+          "text": "✅ Swagger updated for {{ app.name }} at {{ ansible_date_time.iso8601 }}\n\nView: https://{{ nginx.domain }}/help/"
         }
       body_format: json  
     when: teams_webhook_uri | length > 0 
     ignore_errors: yes  
     tags: send_teams_message
-  
-  - name: Run the docker compose
-    # using the docker_compose_v2 module
-    # https://docs.ansible.com/ansible/latest/collections/community/docker/docker_compose_v2_module.html
-    # it will use the docker-compose.yml file in the current directory
-    community.docker.docker_compose_v2:
-      project_src: .
-    # or we can use the command line like:
-    # command: docker compose up -d
-
-      state: present
-      build: policy
-      pull: missing
-      remove_orphans: true
-    tags: run_docker_compose

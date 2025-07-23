@@ -19,7 +19,7 @@ type User struct {
 
 type UserMongo struct {
 	// primary key for mongo
-	HexID    primitive.ObjectID `json:"_id,omitempty"`
+	HexID primitive.ObjectID `json:"_id,omitempty"`
 	User
 }
 

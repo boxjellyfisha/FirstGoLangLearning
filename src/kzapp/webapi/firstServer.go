@@ -7,8 +7,9 @@ import (
 
 	"kzapp/webapi/pkg"
 
-	"github.com/gin-gonic/gin"
 	"github.com/gorilla/mux"
+
+	"github.com/gin-gonic/gin"
 )
 
 func RunMuxServer() {
@@ -49,7 +50,6 @@ func RunMuxServer() {
 	pkg.GracefulShutdown(srv, 5*time.Second)
 }
 
-
 func RunGinServer() {
 	// Create the router
 	router := gin.Default()
@@ -65,7 +65,7 @@ func RunGinServer() {
 	srv := &http.Server{
 		Addr:    ":80",
 		Handler: router,
-	  }
+	}
 
 	// 創建關閉管理器
 	shutdownManager := pkg.NewShutdownManager()

@@ -30,10 +30,10 @@ type UserHandler struct {
 // 這代表你也可以直接用值型別來傳遞 handler。
 
 // 兩者差異：
-// - (*UserHandler)(nil) 是指標型別，UserHandler{} 是值型別。
-// - 這兩行都只是型別檢查，不會產生任何執行時的程式碼。
-// - 如果你的方法接收器是指標（func (h *UserHandler) ...），只有第一行會通過； -> 如果實作本身會更改 UserHandler 內的成員變數，則使用指標型別
-//   如果是值接收器（func (h UserHandler) ...），兩行都會通過。 -> 如果實作本身不會更改 UserHandler 內的成員變數，則使用值型別
+//   - (*UserHandler)(nil) 是指標型別，UserHandler{} 是值型別。
+//   - 這兩行都只是型別檢查，不會產生任何執行時的程式碼。
+//   - 如果你的方法接收器是指標（func (h *UserHandler) ...），只有第一行會通過； -> 如果實作本身會更改 UserHandler 內的成員變數，則使用指標型別
+//     如果是值接收器（func (h UserHandler) ...），兩行都會通過。 -> 如果實作本身不會更改 UserHandler 內的成員變數，則使用值型別
 var _ pkg.Handler = (*UserHandler)(nil)
 
 var _ pkg.Handler = UserHandler{}
@@ -82,6 +82,20 @@ func (h UserHandler) userSecretData(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "The cake is a lie!")
 }
 
+// Signup godoc
+//
+//	@Summary		signup a new user
+//	@Description	create new user into mongodb
+//	@Tags			account
+//	@Accept			json
+//	@Produce		json
+//	@Param			user body db.User true "User" example({"name":"kzzz", "email":"kzzz@gmail.com", "password":"123456"})
+//	@Success		200		{object}	SignupResponse	"success"		example({"message":"User created successfully", "id":1})
+//	@Failure		400		{string}	string			"error"		example("Invalid JSON")
+//	@Failure		404		{string}	string			"error"		example("Failed to create user")
+//	@Failure		500		{string}	string			"error"		example("Failed to create user")
+//	@Router			/signup [POST]
+//
 // example: curl -XPOST http://localhost:80/signup -d '{"name":"kzzz", "email":"kzzz@gmail.com", "password":"123456"}'
 func (h UserHandler) signup(w http.ResponseWriter, r *http.Request) {
 	var req db.User
@@ -100,11 +114,16 @@ func (h UserHandler) signup(w http.ResponseWriter, r *http.Request) {
 	log.Println("created user id: ", id)
 
 	// 返回成功響應
-	response := map[string]interface{}{
-		"message": "User created successfully",
-		"id":      id,
+	response := SignupResponse{
+		Message: "User created successfully",
+		ID:      id,
 	}
 	pkg.JsonResponse(w, response)
+}
+
+type SignupResponse struct {
+	Message string `json:"message"`
+	ID      int    `json:"id"`
 }
 
 // func createNewUser(userDao db.UserDao) {
@@ -121,6 +140,19 @@ func (h UserHandler) signup(w http.ResponseWriter, r *http.Request) {
 // 	defer log.Println(users)
 // }
 
+// Login godoc
+//
+//	@Summary		user login
+//	@Description	check the user exist and set the session
+//	@Tags			account
+//	@Accept			json
+//	@Produce		json
+//	@Param			user	body		UserResponse	true	"User"
+//	@Success		200		{object}	UserResponse
+//	@Failure		400		{string}	string
+//	@Failure		500		{string}	string
+//	@Router			/login [POST]
+//
 // example: curl -s -I -XPOST http://localhost:80/login -d '{"name":"kzzz"}'
 func (h UserHandler) login(w http.ResponseWriter, r *http.Request) {
 	session, _ := h.store.Get(r, "cookie-name")
@@ -155,6 +187,19 @@ func (h UserHandler) login(w http.ResponseWriter, r *http.Request) {
 	pkg.JsonResponse(w, response)
 }
 
+// Login godoc
+//
+//	@Summary		user logout
+//	@Description	clear the user session
+//	@Tags			account
+//	@Accept			json
+//	@Produce		json
+//	@Param			cookie	header		string	true	"cookie-name"
+//	@Success		200		{any}		any
+//	@Failure		400		{string}	string
+//	@Failure		500		{string}	string
+//	@Router			/logout [GET]
+//
 // example: curl -s --cookie "cookie-name=MTc0OTIwNzc2OHxEWDhFQVFMX2dBQUJFQUVRQUFBbF80QUFBUVp6ZEhKcGJtY01Ed0FOWVhWMGFHVnVkR2xqWVhSbFpBUmliMjlzQWdJQUFRPT184yNJN4tqSV2k9vtr72fgHJiib5ZUTwe7aeatyygo2ro=" -I -XPOST http://localhost:80/logout
 func (h UserHandler) logout(w http.ResponseWriter, r *http.Request) {
 	session, _ := h.store.Get(r, "cookie-name")

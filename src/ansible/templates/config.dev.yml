@@ -1,3 +1,4 @@
 debug: false
 data_dir: "/Users/kellyhong/Documents/workspace-go/kz/src/kznginx"
 db_dir: "/Users/kellyhong/Documents/workspace-go/kz/src/kzmongo"
+swagger_dir: "/Users/kellyhong/Documents/workspace-go/kz/src/kzapp"

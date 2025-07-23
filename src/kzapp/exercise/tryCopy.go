@@ -2,8 +2,9 @@ package exercise
 
 import "fmt"
 
-// enum like 
+// enum like
 type CorgiType string
+
 const (
 	Wanpachi CorgiType = "Wanpachi"
 	Yamper   CorgiType = "Yamper"
@@ -11,16 +12,16 @@ const (
 
 // data class like
 type Character struct {
-	Kind string
-	Gender  string
+	Kind   string
+	Gender string
 }
 
 // data class like
 type Corgi struct {
-	ID       int
-	Type     CorgiType
-	Name     string
-	Trainner []string
+	ID        int
+	Type      CorgiType
+	Name      string
+	Trainner  []string
 	Character Character
 }
 
@@ -38,7 +39,7 @@ func CreateCopies() (Corgi, Corgi, Corgi, Corgi) {
 		Name:     "Lulu",
 		Trainner: []string{"Lisa", "Jorge"},
 	}
-	
+
 	// pointerNewOne := new(Corgi)
 	// pointerNewOne.ID = 2
 	// pointerNewOne.Type = Yamper

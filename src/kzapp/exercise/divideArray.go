@@ -8,7 +8,7 @@ import (
 // a test sample for array
 func initArray(groupCount int) [][3]int {
 	arrayGrouping := make([][3]int, groupCount)
-	
+
 	if groupCount > 2 {
 		fmt.Printf("arrayGrouping[0] %p\n", &arrayGrouping[0])
 		fmt.Printf("arrayGrouping[0][0] %p\n", &arrayGrouping[0][0])
@@ -17,7 +17,7 @@ func initArray(groupCount int) [][3]int {
 		fmt.Printf("arrayGrouping[1] %p\n", &arrayGrouping[1])
 	}
 	fmt.Println("declare in array ", arrayGrouping)
-	
+
 	return arrayGrouping
 }
 
@@ -48,7 +48,7 @@ func swapItem(items [][]int, newItem []int) {
 
 func divideArray(nums []int, k int) [][]int {
 	var groupSize = 3
-	if len(nums) == 0 || len(nums) % groupSize != 0 {
+	if len(nums) == 0 || len(nums)%groupSize != 0 {
 		return [][]int{}
 	}
 
@@ -60,11 +60,11 @@ func divideArray(nums []int, k int) [][]int {
 
 	for i := 0; i < groupCount; i++ {
 		// directly assign the slice to the array is more efficient than appending
-		sliceGrouping[i] = nums[i*groupSize: (i+1)*groupSize]
+		sliceGrouping[i] = nums[i*groupSize : (i+1)*groupSize]
 
-		if sliceGrouping[i][groupSize-1] - sliceGrouping[i][0] > k {
+		if sliceGrouping[i][groupSize-1]-sliceGrouping[i][0] > k {
 			return [][]int{}
-		} else if( sliceGrouping[i][groupSize-2] - sliceGrouping[i][0] > k){
+		} else if sliceGrouping[i][groupSize-2]-sliceGrouping[i][0] > k {
 			return [][]int{}
 		}
 	}

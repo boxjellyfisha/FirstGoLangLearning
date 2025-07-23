@@ -24,9 +24,9 @@ func WithTimeout(action func(context.Context) any) (result any, failedResult err
 }
 
 func handlePanic(failedResult *error) {
-    if r := recover(); r != nil {
-        *failedResult = r.(error)
-    }
+	if r := recover(); r != nil {
+		*failedResult = r.(error)
+	}
 }
 
 // CreateUser implements UserDao.
@@ -53,7 +53,7 @@ func (u *UserMongoDaoImpl) CreateUser(user User) (int, error) {
 		if id, ok := result.(int64); ok {
 			return int(id), nil
 		}
-	} 
+	}
 	return -1, err
 }
 

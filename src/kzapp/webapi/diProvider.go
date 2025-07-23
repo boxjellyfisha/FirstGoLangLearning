@@ -62,7 +62,7 @@ func createRealDB() *db.FirstDB {
 	return firstDB
 }
 
-func getSqliteDBPath() (string) {
+func getSqliteDBPath() string {
 	currentDir, err := pkg.GetResourceDir()
 	if err != nil {
 		initError = errors.New("failed to get current directory")

@@ -23,6 +23,18 @@ services:
             - kz-network
         environment:
             - MONGODB_URI=mongodb://mongodb:27017
+    
+    swagger-ui:
+        image: swaggerapi/swagger-ui
+        container_name: swagger-ui
+        ports:
+            - "8081:8080"
+        volumes:
+            - "/Users/kellyhong/Documents/workspace-go/kz/src/kzapp/cmd/docs:/usr/share/nginx/html/docs"
+        environment:
+            - SWAGGER_JSON=/usr/share/nginx/html/docs/swagger.json 
+        networks:
+            - kz-network            
 
     hello:
         image: tutk-hub.kalay.us/helloworld:1.0.1
@@ -31,7 +43,7 @@ services:
             - "82:8888"
         restart: unless-stopped
         networks:
-            - kz-network
+            - kz-network        
 
     nginx:
         image: nginx:latest
@@ -48,6 +60,7 @@ services:
         depends_on:
             - app
             - hello
+            - swagger-ui
         networks:
             - kz-network
 

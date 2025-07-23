@@ -8,9 +8,16 @@ services:
       - ANSIBLE_VAULT_PASSWORD_FILE=ansible/.vault_pass
     volumes:
       - ${PWD}:/ansible
+      # use the host docker socket
+      # docker.sock 掛載是必要的，因為：
+      # - Ansible 的 Docker 模組需要與 Docker daemon 通訊
+      # - 容器需要管理主機的 Docker 容器
+      # - 避免 Docker-in-Docker 的複雜性
       - /var/run/docker.sock:/var/run/docker.sock
-    command: -i ansible/inventory.ini ansible/do.yml -e "environment=prod"
+    command: -i ansible/inventory.ini ansible/do.yml -e "dev_mode=prod"
     ports:
-      - "2222:22"
+      - "2222:22"  
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  
 
 # docker compose -f docker_ansible_compose.yml up -d "ansible"

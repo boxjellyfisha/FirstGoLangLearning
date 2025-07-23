@@ -32,3 +32,6 @@ Content-Type: application/json
 {
     "name":"test"
 }
+
+### Swagger UI
+GET https://kzzz.kalay.us:443/help/

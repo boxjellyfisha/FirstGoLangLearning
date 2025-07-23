@@ -29,6 +29,3 @@ func ExecuteRequest(handler http.HandlerFunc, req *http.Request) *httptest.Respo
 func StringPtr(s string) *string {
 	return &s
 }
-
-
-
