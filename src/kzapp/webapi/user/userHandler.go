@@ -89,8 +89,8 @@ func (h UserHandler) userSecretData(w http.ResponseWriter, r *http.Request) {
 //	@Tags			account
 //	@Accept			json
 //	@Produce		json
-//	@Param			user body db.User true "User" example({"name":"kzzz", "email":"kzzz@gmail.com", "password":"123456"})
-//	@Success		200		{object}	SignupResponse	"success"		example({"message":"User created successfully", "id":1})
+//	@Param			user	body		db.Usertrue 	"User"		example({"name":"kzzz", "email":"kzzz@gmail.com", "password":"123456"})
+//	@Success		200		{object}	SignupResponse	"success"	example({"message":"User created successfully", "id":1})
 //	@Failure		400		{string}	string			"error"		example("Invalid JSON")
 //	@Failure		404		{string}	string			"error"		example("Failed to create user")
 //	@Failure		500		{string}	string			"error"		example("Failed to create user")

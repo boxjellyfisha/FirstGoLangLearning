@@ -3,6 +3,10 @@ debug: true
 # db_dir: "/ansible/kzmongo"
 # swagger_dir: "/ansible/kzapp"
 
-data_dir: "./kznginx"
-db_dir: "./kzmongo"
-swagger_dir: "./kzapp"
+# data_dir: "../kznginx"
+# db_dir: "../kzmongo"
+# swagger_dir: "../kzapp"
+
+data_dir: "/Users/kellyhong/Documents/workspace-go/kz/src/kznginx"
+db_dir: "/Users/kellyhong/Documents/workspace-go/kz/src/kzmongo"
+swagger_dir: "/Users/kellyhong/Documents/workspace-go/kz/src/kzapp"

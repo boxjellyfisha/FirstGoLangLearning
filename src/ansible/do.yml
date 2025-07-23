@@ -23,23 +23,23 @@
         - "Debug: {{ debug }}"
         - "Teams Webhook Configured: {{ teams_webhook_url | default('Not configured') | length > 0 }}"
     
-  - name: Create the necessary directories
-    file:
-      path: "{{ item }}"
-      state: directory
-      mode: '0755'
-    loop:
-      - "{{ data_dir }}"
-      - "{{ db_dir }}"
-      - "{{ db_dir }}/data/mongodb"
-      - "{{ swagger_dir }}/cmd/docs"
-      - "{{ data_dir }}/data/config/nginx/global"
-      - "{{ data_dir }}/data/config/nginx/conf"
-      - "{{ data_dir }}/data/certs"
-      - "{{ data_dir }}/data/logs/nginx"
-    tags: 
-      - never
-      - create_dirs
+  # - name: Create the necessary directories
+  #   file:
+  #     path: "{{ item }}"
+  #     state: directory
+  #     mode: '0755'
+  #   loop:
+  #     - "{{ data_dir }}"
+  #     - "{{ db_dir }}"
+  #     - "{{ db_dir }}/data/mongodb"
+  #     - "{{ swagger_dir }}/cmd/docs"
+  #     - "{{ data_dir }}/data/config/nginx/global"
+  #     - "{{ data_dir }}/data/config/nginx/conf"
+  #     - "{{ data_dir }}/data/certs"
+  #     - "{{ data_dir }}/data/logs/nginx"
+  #   tags: 
+  #     - never
+  #     - create_dirs
 
   - name: Generate the swagger.json file
     command: "/Users/kellyhong/go/bin/swag init -g cmd/main.go -d . -o ./cmd/docs"
