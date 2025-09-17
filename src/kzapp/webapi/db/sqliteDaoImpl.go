@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 )
 
 type UserSqliteDaoImpl struct {
@@ -78,4 +79,8 @@ func (u *UserSqliteDaoImpl) DeleteUser(id int) error {
 	}
 
 	return nil
+}
+
+func (u *UserSqliteDaoImpl) UpdateUser(updateUser any, updateInfo map[string]any) error {
+	return errors.New("not implemented")
 }

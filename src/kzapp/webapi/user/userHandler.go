@@ -52,6 +52,7 @@ func (h UserHandler) InitService(router *mux.Router) {
 	router.HandleFunc("/login", pkg.Chain(h.login, pkg.Method("POST"), pkg.Logging()))
 	router.HandleFunc("/logout", pkg.Chain(h.logout, pkg.Method("POST"), pkg.Logging()))
 	router.HandleFunc("/info", pkg.Chain(h.userSecretData, pkg.Method("GET"), pkg.Logging()))
+	router.HandleFunc("/update", pkg.Chain(h.updateUser, pkg.Method("PATCH"), pkg.Logging()))
 }
 
 func (h UserHandler) InitServiceGin(router *gin.Engine) {
@@ -59,6 +60,7 @@ func (h UserHandler) InitServiceGin(router *gin.Engine) {
 	router.POST("/login", pkg.ChainGin(h.login), gin.Logger())
 	router.POST("/logout", pkg.ChainGin(h.logout), gin.Logger())
 	router.GET("/info", pkg.ChainGin(h.userSecretData), gin.Logger())
+	router.PATCH("/update", pkg.ChainGin(h.updateUser), gin.Logger())
 }
 
 // example: curl -s --cookie "cookie-name=MTc0OTIwNzc2OHxEWDhFQVFMX2dBQUJFQUVRQUFBbF80QUFBUVp6ZEhKcGJtY01Ed0FOWVhWMGFHVnVkR2xqWVhSbFpBUmliMjlzQWdJQUFRPT184yNJN4tqSV2k9vtr72fgHJiib5ZUTwe7aeatyygo2ro=" http://localhost:80/info
@@ -164,7 +166,7 @@ func (h UserHandler) login(w http.ResponseWriter, r *http.Request) {
 	if err != nil || req.Name == "" {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
-	}
+	} 
 
 	user, err := h.userDao.FindUserByName(req.Name)
 	if err != nil || user == nil {
@@ -207,4 +209,54 @@ func (h UserHandler) logout(w http.ResponseWriter, r *http.Request) {
 	// Revoke users authentication
 	session.Values["authenticated"] = false
 	session.Save(r, w)
+}
+
+// UpdateUser godoc
+//
+// @Summary		update user info
+// @Description	update user info
+// @Tags			account
+// @Accept			json
+// @Produce			json
+// @Param			cookie	header		string	true	"cookie-name"
+// @Param			user	body		UserUpdateRequest	true	"User"
+// @Success		204		{any}		any
+// @Failure		400		{string}	string
+// @Failure		500		{string}	string
+// @Router			/update [PATCH]
+//
+// example: curl -s --cookie "cookie-name=MTc0OTIwNzc2OHxEWDhFQVFMX2dBQUJFQUVRQUFBbF80QUFBUVp6ZEhKcGJtY01Ed0FOWVhWMGFHVnVkR2xqWVhSbFpBUmliMjlzQWdJQUFRPT184yNJN4tqSV2k9vtr72fgHJiib5ZUTwe7aeatyygo2ro=" -XPUT http://localhost:80/update -d '{"name":"kzzz", "email":"kzzz@gmail.com", "password":"123456"}'
+func (h UserHandler) updateUser(w http.ResponseWriter, r *http.Request) {
+	session, _ := h.store.Get(r, "cookie-name")
+
+	if auth, isReturnValueAsBool := session.Values["authenticated"].(bool); !isReturnValueAsBool || !auth {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	//UserUpdateRequest
+
+	var req UserUpdateRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil || req.Name == "" {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+	findUser, err := h.userDao.FindUserByName(req.Name)
+	if err != nil || findUser == nil {
+		http.Error(w, "Unknown user", http.StatusBadRequest)
+		return
+	}
+
+	updateInfo := map[string]any{
+		"email": req.Email,
+		"password": req.Password,
+	}
+	err = h.userDao.UpdateUser(findUser, updateInfo)
+	if err != nil {
+		http.Error(w, "Failed to update user", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }

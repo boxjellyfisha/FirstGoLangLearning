@@ -2,12 +2,14 @@ package db
 
 import (
 	"context"
+	"errors"
 	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type UserMongoDaoImpl struct {
@@ -116,4 +118,25 @@ func (u *UserMongoDaoImpl) GetUsers() ([]User, error) {
 		return result.([]User), err
 	}
 	return nil, err
+}
+
+func (u *UserMongoDaoImpl) UpdateUser(updateUser any, updateInfo map[string]any) error {
+	var hexID *primitive.ObjectID
+	if user, ok := (updateUser).(*UserMongo); ok {
+		hexID = &user.HexID
+	}
+	if hexID == nil {
+		return errors.New("user id is not valid")
+	}
+
+	ret := u.db.Collection("users").FindOneAndUpdate(
+		context.Background(),
+		bson.M{"_id": hexID},
+		bson.M{"$set": updateInfo},
+		options.FindOneAndUpdate().SetReturnDocument(options.After),
+	)
+	if ret.Err() != nil {
+		return ret.Err()
+	}
+	return ret.Decode(updateUser)
 }

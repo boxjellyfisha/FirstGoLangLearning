@@ -28,4 +28,5 @@ type UserDao interface {
 	GetUsers() ([]User, error)
 	FindUserByName(name string) (*User, error)
 	DeleteUser(id int) error
+	UpdateUser(updateUser any, updateInfo map[string]any) error
 }

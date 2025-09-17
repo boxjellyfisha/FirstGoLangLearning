@@ -12,9 +12,9 @@ POST https://kzzz.kalay.us:443/signup
 Content-Type: application/json
 
 {
-    "name": "test",
-    "email": "test@test.com",
-    "password": "test"
+    "name": "test3",
+    "email": "test3@test.com",
+    "password": "test3"
 }  
 
 ### login unknown user
@@ -30,7 +30,16 @@ POST https://kzzz.kalay.us:443/login
 Content-Type: application/json
 
 {
-    "name":"test"
+    "name":"test3"
+}
+
+### update user
+PATCH https://kzzz.kalay.us:443/update
+Content-Type: application/json
+Cookie: cookie-name=MTc0OTIwNzc2OHxEWDhFQVFMX2dBQUJFQUVRQUFBbF80QUFBUVp6ZEhKcGJtY01Ed0FOWVhWMGFHVnVkR2xqWVhSbFpBUmliMjlzQWdJQUFRPT184yNJN4tqSV2k9vtr72fgHJiib5ZUTwe7aeatyygo2ro=
+
+{
+    "name":"test", "email":"test1234@test.com", "password":"test1234"
 }
 
 ### Swagger UI
